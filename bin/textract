@@ -3,7 +3,6 @@
 
 var path = require( 'path' )
   , fs = require( 'fs' )
-  , meow = require( 'meow' )
   , help = 'Usage:\n' +
            '  textract pathToFile\n\n' +
            'Flags:\n' +
@@ -16,12 +15,61 @@ var path = require( 'path' )
            '  pdftotextOptions: This is a proxy options object to the library textract uses for pdf extraction\n' +
            '  typeOverride: Used with fromUrl, if set, rather than using the content-type from the URL request, will use the provided typeOverride.' +
            'Example:\n' +
-           '  textract test/files/huge.docx --exec.maxBuffer 500000 --preserveLineBreaks false\n'
+           '  textract test/files/huge.docx --exec.maxBuffer 500000 --preserveLineBreaks false\n';
 
-var cli = meow({
-  help: help,
-  pkg: '../package.json'
-});
+function parseArgs( argv ) {
+  var input = []
+    , flags = {}
+    , args = argv.slice( 2 )
+    , i = 0
+    ;
+
+  function setDeep( obj, keyPath, value ) {
+    var parts = keyPath.split( '.' )
+      , last = parts.pop()
+      , curr = obj
+      ;
+
+    parts.forEach( function( part ) {
+      if ( !Object.prototype.hasOwnProperty.call( curr, part ) || typeof curr[part] !== 'object' ) {
+        curr[part] = {};
+      }
+      curr = curr[part];
+    });
+
+    curr[last] = value;
+  }
+
+  while ( i < args.length ) {
+    var arg = args[i];
+
+    if ( arg.slice( 0, 2 ) === '--' ) {
+      var key = arg.slice( 2 );
+      var next = args[i + 1];
+      var value;
+
+      if ( next && next.slice( 0, 2 ) !== '--' ) {
+        value = next;
+        i += 1;
+      } else {
+        value = true;
+      }
+
+      setDeep( flags, key, value );
+    } else {
+      input.push( arg );
+    }
+
+    i += 1;
+  }
+
+  return {
+    input: input,
+    flags: flags
+  };
+}
+
+var cli = parseArgs( process.argv );
 
 if ( !cli.input || cli.input.length === 0 ) {
   console.log( '\n' + help );

@@ -1,3 +1,7 @@
+### 2.6.0
+* Updated core dependencies to address security vulnerabilities: replaced `xmldom` with `@xmldom/xmldom`, upgraded `got`, `cheerio`, `epub2`, and switched XLS/XLSX extraction to use `xlsx` directly instead of `j`.
+* Raised the minimum supported Node.js version via `engines.node` to `>=20` to align with current Node 20/24 runtimes and newer dependency requirements.
+
 ### 2.5.0
 * [#188](https://github.com/dbashford/textract/pull/188). PR updated `marked` depedency.
 * [#179](https://github.com/dbashford/textract/pull/179). PR added ability to capture powerpoint speaker notes.
